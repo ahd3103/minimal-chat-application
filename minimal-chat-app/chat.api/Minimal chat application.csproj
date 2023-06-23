@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="chat.entity\Chat.DominModel.csproj" />
-    <ProjectReference Include="chat.repository\Chat.Repository.csproj" />
+    <ProjectReference Include="..\chat.entity\Chat.DominModel.csproj" />
+    <ProjectReference Include="..\chat.repository\Chat.Repository.csproj" />
   </ItemGroup>
 
   

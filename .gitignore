@@ -9,3 +9,6 @@
 /minimal-chat-app/chat.repository/bin/Debug/net6.0
 /minimal-chat-app/chat.repository/obj
 /minimal-chat-app/.vs/ProjectEvaluation
+/minimal-chat-app/chat.api/.vs/Minimal chat application
+/minimal-chat-app/chat.api/obj
+/minimal-chat-app/chat.api/bin/Debug/net6.0
