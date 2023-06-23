@@ -4,6 +4,10 @@ using Chat.DominModel.Model;
 using Chat.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Minimal_chat_application.Controllers
 {
@@ -12,32 +16,17 @@ namespace Minimal_chat_application.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IUserRepository userRepository)
+
+        public UserController(IUserRepository userRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
-        {  
-            var user =await _userRepository.Get(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var response = new UserResponse
-            {
-                UserId = user.UserId,
-                Name = user.Name,
-                Email = user.Email
-            };
-
-            return Ok(response);
+            _configuration = configuration; 
         }
 
         [HttpGet]
+        [Route("/api/users")]
         public async Task<IActionResult> GetAll()
         {
             var users =await _userRepository.GetAll();
@@ -87,27 +76,50 @@ namespace Minimal_chat_application.Controllers
             return Ok(response);
         }
 
-       
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(string email, string password)
         {
-            var existingUser =await _userRepository.Get(id);
-            if (existingUser == null)
+            var user = await _userRepository.CheckUser(email, password);
+
+            if (user == null)
             {
-                return NotFound();
+                return Unauthorized(); // Login failed due to incorrect credentials
             }
 
-          await  _userRepository.Delete(id);
+            var token = GenerateJwtToken(user.UserId);
 
-            var response = new UserResponse
+            var userProfile = new UserResponse
             {
-                UserId = existingUser.UserId,
-                Name = existingUser.Name,
-                Email = existingUser.Email
+                UserId = user.UserId,
+                Name = user.Name,
+                Email = user.Email,
+                //Password = user.Password
             };
 
-            return Ok(response);
+            return Ok(new { Token = token, Profile = userProfile, Massage = "Login successful" });
         }
+        // Helper method to generate a JWT token
+        private string GenerateJwtToken(int userId)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSecret = _configuration["JWT:Secret"];
+            var key = Encoding.ASCII.GetBytes(jwtSecret);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                }),
+                Expires = DateTime.UtcNow.AddHours(1), // Set the token expiration time
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            return tokenString;
+        }
+
     }
 
    
