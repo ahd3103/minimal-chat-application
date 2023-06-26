@@ -9,13 +9,11 @@ namespace Chat.Repository
 {
     public interface IUserRepository
     {
-        Task<User> Get(int id);
+        Task<User> Get(Guid id);
         Task<User> CheckUser(string email, string password);
         Task<IEnumerable<User>> GetAll();
         Task Insert(User user);
         Task<User> GetByEmail(string email);
-        Task<IEnumerable<User>> GetAllUsers();
-        Task<User> GetUserById(int userId);
     }
 
 }

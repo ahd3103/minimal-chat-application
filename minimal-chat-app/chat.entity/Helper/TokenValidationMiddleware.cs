@@ -29,6 +29,11 @@ namespace Chat.DominModel.Helper
             if (token != null)
             {
                 await ValidateToken(context, token);
+                // Remove the existing Authorization header
+                context.Request.Headers.Remove("Authorization");
+
+                // Add the updated Authorization header with the token
+                context.Request.Headers.Add("Authorization", token);
             }
 
             await _next(context);
@@ -39,7 +44,7 @@ namespace Chat.DominModel.Helper
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var jwtSecret = _configuration["JWT:Secret"];
+                var jwtSecret = _configuration["JWT:Key"];
                 var key = Encoding.ASCII.GetBytes(jwtSecret);
 
                 var tokenValidationParameters = new TokenValidationParameters

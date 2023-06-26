@@ -12,16 +12,14 @@ namespace Chat.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ChatDbContext _context;
-        private List<User> _users;
+        private readonly ChatDbContext _context; 
 
-        public UserRepository(ChatDbContext context, List<User> users)
+        public UserRepository(ChatDbContext context )
         {
-            _context = context;
-            _users = users;
+            _context = context; 
         }
 
-        public async Task<User>  Get(int id)
+        public async Task<User>  Get(Guid id)
         {
             return await _context.Users.FindAsync(id);
         }
@@ -45,26 +43,10 @@ namespace Chat.Repository
         public async Task<User> CheckUser(string email, string password)
         {
             // Find the user with the provided email
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email); 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password); 
 
             return user;  
-        }
-
-        // Return all users as an asynchronous operation
-        public Task<IEnumerable<User>> GetAllUsers()
-        {
-            return Task.FromResult<IEnumerable<User>>(_users);
-        }
-
-        public Task<User> GetUserById(int userId)
-        {
-            // Find the user by their ID (replace with your actual data access code)
-            var user = _users.FirstOrDefault(u => u.UserId == userId);
-
-            // Return the user as an asynchronous operation
-            return Task.FromResult(user);
-        }
-       
+        } 
     }
 
 }

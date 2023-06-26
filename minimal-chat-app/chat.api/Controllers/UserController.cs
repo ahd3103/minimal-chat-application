@@ -2,6 +2,7 @@
 using Chat.DominModel.DTOs;
 using Chat.DominModel.Model;
 using Chat.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +12,7 @@ using System.Text;
 
 namespace Minimal_chat_application.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -24,7 +26,7 @@ namespace Minimal_chat_application.Controllers
             _userRepository = userRepository;
             _configuration = configuration; 
         }
-
+        [Authorize]
         [HttpGet]
         [Route("/api/users")]
         public async Task<IActionResult> GetAll()
@@ -39,7 +41,7 @@ namespace Minimal_chat_application.Controllers
 
             return Ok(response);
         }
-
+     
         [HttpPost]
         [Route("/api/register")]
         public async Task<IActionResult> Insert([FromBody] User user)
@@ -52,8 +54,8 @@ namespace Minimal_chat_application.Controllers
                 };
                 return BadRequest(errorResponse);
             }
-
-            var existingUser =await  _userRepository.GetByEmail(user.Email);
+           
+            var existingUser = await _userRepository.GetByEmail(user.Email);
             if (existingUser != null)
             {
                 var errorResponse = new ErrorResponse
@@ -61,6 +63,10 @@ namespace Minimal_chat_application.Controllers
                     Error = "Email is already registered."
                 };
                 return Conflict(errorResponse);
+            }
+            else
+            {
+                user.UserId=Guid.NewGuid();
             }
 
             await _userRepository.Insert(user);
@@ -76,6 +82,7 @@ namespace Minimal_chat_application.Controllers
             return Ok(response);
         }
 
+        
         [HttpPost("login")]
         public async Task<IActionResult> Login(string email, string password)
         {
@@ -85,32 +92,34 @@ namespace Minimal_chat_application.Controllers
             {
                 return Unauthorized(); // Login failed due to incorrect credentials
             }
-
-            var token = GenerateJwtToken(user.UserId);
-
-            var userProfile = new UserResponse
+            else
             {
-                UserId = user.UserId,
-                Name = user.Name,
-                Email = user.Email,
-                //Password = user.Password
-            };
+                var token = GenerateJwtToken(user.UserId);
 
-            return Ok(new { Token = token, Profile = userProfile, Massage = "Login successful" });
+                var userProfile = new UserResponse
+                {
+                    UserId = user.UserId,
+                    Name = user.Name,
+                    Email = user.Email
+                };
+
+                return Ok(new { Token = token, Profile = userProfile, Massage = "Login successful" });
+
+            }       
         }
         // Helper method to generate a JWT token
-        private string GenerateJwtToken(int userId)
+        private string GenerateJwtToken(Guid userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtSecret = _configuration["JWT:Secret"];
+            var jwtSecret = _configuration["JWT:Key"];
             var key = Encoding.ASCII.GetBytes(jwtSecret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                    new Claim(ClaimTypes.Name, userId.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddHours(1), // Set the token expiration time
+                Expires = DateTime.UtcNow.AddHours(12), // Set the token expiration time
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
