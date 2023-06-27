@@ -25,6 +25,7 @@ builder.Services.AddDbContext<ChatDbContext>(options =>
 });
 
 builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 builder.Services.AddSingleton<List<User>>();
 

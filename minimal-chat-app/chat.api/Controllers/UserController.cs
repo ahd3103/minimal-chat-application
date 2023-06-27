@@ -130,10 +130,4 @@ namespace Minimal_chat_application.Controllers
         }
 
     }
-
-   
-
-   
-
-
 }

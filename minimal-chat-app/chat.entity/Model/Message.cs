@@ -13,11 +13,15 @@ namespace Chat.DominModel.Model
   
     public class Message
     {
+        [DisplayName("messageId")]
         public Guid Id { get; set; }
+
         public Guid UserId { get; set; }
-        [DisplayName("senderId")]
+
+        [DisplayName("SenderId")]
         public string Sender { get; set; }
-        [DisplayName("receiverId")]
+
+        [DisplayName("ReceiverId")]
         public string Receiver { get; set; }
         public DateTime Timestamp { get; set; }
         public string Content { get; set; }

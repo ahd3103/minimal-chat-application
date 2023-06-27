@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Application Classes\" />
+    <Compile Remove="Application Classes\**" />
+    <EmbeddedResource Remove="Application Classes\**" />
+    <None Remove="Application Classes\**" />
   </ItemGroup>
 
   <ItemGroup>
