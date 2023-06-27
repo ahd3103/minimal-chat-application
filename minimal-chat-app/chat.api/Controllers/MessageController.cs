@@ -178,12 +178,9 @@ namespace Minimal_chat_application.Controllers
             }
             catch (Exception ex)
             {
-
                 throw;
             }
-            
-
-           
+                     
         }
     }
 

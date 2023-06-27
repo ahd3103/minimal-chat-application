@@ -24,27 +24,6 @@ namespace Chat.Repository
         {
             return await _context.Messages.FindAsync(messageId);
         }
-        //public async Task<List<Message>> GetConversationMessages(string currentUser, string userId, DateTime? before, int count, string sort)
-        //{
-        //    var query = _context.Messages.Where(m => (m.Sender.Trim().ToLower() == currentUser.ToLower() 
-        //    && m.Receiver.Trim().ToLower() == userId.ToLower()));
-
-        //    if (before.HasValue)
-        //    {
-        //        query = await query.Where(m => m.Timestamp < before);
-        //    }
-
-        //    if (sort.ToLower() == "desc")
-        //    {
-        //        query = await query.OrderByDescending(m => m.Timestamp);
-        //    }
-        //    else
-        //    {
-        //        query = await query.OrderBy(m => m.Timestamp);
-        //    }
-
-        //    return await query.Take(count).ToListAsync();
-        //}
         public async Task<List<Message>> GetConversationMessages(string currentUser, string userId, DateTime? before, int count, string sort)
         {
             IQueryable<Message> query = _context.Messages.Where(m => m.Sender.Trim().ToLower() == currentUser.ToLower() &&
@@ -71,7 +50,7 @@ namespace Chat.Repository
             }
             catch (Exception ex)
             {
-                // Handle the exception appropriately (e.g., logging, error notification)
+                
                 throw new Exception("An error occurred while retrieving conversation messages.", ex);
             }
 
